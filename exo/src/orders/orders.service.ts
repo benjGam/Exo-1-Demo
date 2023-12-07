@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -63,10 +62,10 @@ export class OrdersService {
     });
   }
 
-  public async getByNumber(order_number: number) {
+  public async getByNumber(orderNumber: number) {
     return await this.prisma.orders.findUnique({
       where: {
-        number: order_number,
+        number: orderNumber,
       },
       select: {
         Belong: {
@@ -74,6 +73,14 @@ export class OrdersService {
             Product: true,
           },
         },
+      },
+    });
+  }
+
+  public async deleteByNumber(orderNumber: number) {
+    return await this.prisma.orders.delete({
+      where: {
+        number: orderNumber,
       },
     });
   }
