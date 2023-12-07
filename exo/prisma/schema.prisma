@@ -18,6 +18,7 @@ model Products {
   quantity    Int
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
+  Belong      Belong[]
 }
 
 model Users {
@@ -39,12 +40,15 @@ model Orders {
   deliver_at             DateTime
   user_UUID              String   @db.Char(36)
   user                   Users    @relation(map: "user_fk", fields: [user_UUID], references: [UUID], onDelete: Cascade)
+  Belong                 Belong[]
 }
 
 model Belong {
-  product_UUID String @db.Char(36)
-  order_UUID   String @db.Char(36)
+  product_UUID String   @db.Char(36)
+  order_number Int
+  Product      Products @relation(map: "products_uuid_fk", fields: [product_UUID], references: [UUID])
+  Order        Orders   @relation(map: "orders_uuid_fk", fields: [order_number], references: [number])
 
-  @@id([product_UUID, order_UUID])
-  @@unique([product_UUID, order_UUID])
+  @@id([product_UUID, order_number])
+  @@unique([product_UUID, order_number])
 }
