@@ -16,4 +16,12 @@ export class ProductsService {
       },
     });
   }
+
+  public async getByUUID(uuid: string) {
+    return await this.prisma.products.findUnique({
+      where: {
+        UUID: uuid,
+      },
+    });
+  }
 }
