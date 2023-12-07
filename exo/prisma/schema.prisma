@@ -27,4 +27,15 @@ model Users {
   password   String   @db.VarChar(72)
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+  Orders     Orders[]
+}
+
+model Orders {
+  number                 Int      @id(map: "orders_pk") @unique() @default(autoincrement())
+  total_cost             Float
+  total_product_quantity Int
+  created_at             DateTime @default(now())
+  updated_at             DateTime @default(now())
+  user_UUID              String   @db.Char(36)
+  user                   Users    @relation(map: "user_fk", fields: [user_UUID], references: [UUID], onDelete: Cascade)
 }
