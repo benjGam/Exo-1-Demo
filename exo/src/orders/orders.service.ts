@@ -7,6 +7,12 @@ import { PrismaService } from 'src/prisma.service';
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async generateForwardDate(daysToAdd: number, from?: Date) {
+    const newDate = from ?? new Date();
+    newDate.setDate(newDate.getDate() + daysToAdd);
+    return newDate;
+  }
+
   private async getProducts(productUUIDS: string[]) {
     return await this.prisma.products.findMany({
       where: {
@@ -42,7 +48,7 @@ export class OrdersService {
           },
         },
         total_product_quantity: orderedProducts.length,
-        deliver_at: new Date(),
+        deliver_at: await this.generateForwardDate(7),
       },
     });
   }
