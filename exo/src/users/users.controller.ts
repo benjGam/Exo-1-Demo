@@ -16,13 +16,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  public create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Get(':uuid')
+  public getByUUID(@Param('uuid') uuid: string) {
+    return this.usersService.getByUUID(uuid);
   }
 
   @Get(':id')
