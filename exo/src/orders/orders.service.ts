@@ -50,6 +50,16 @@ export class OrdersService {
         total_product_quantity: orderedProducts.length,
         deliver_at: await this.generateForwardDate(7),
       },
+      select: {
+        total_cost: true,
+        user: true,
+        total_product_quantity: true,
+        Belong: {
+          select: {
+            Product: true,
+          },
+        },
+      },
     });
   }
 
