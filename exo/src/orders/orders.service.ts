@@ -63,19 +63,18 @@ export class OrdersService {
     });
   }
 
-  findAll() {
-    return `This action returns all orders`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
-  }
-
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  public async getByNumber(order_number: number) {
+    return await this.prisma.orders.findUnique({
+      where: {
+        number: order_number,
+      },
+      select: {
+        Belong: {
+          select: {
+            Product: true,
+          },
+        },
+      },
+    });
   }
 }
