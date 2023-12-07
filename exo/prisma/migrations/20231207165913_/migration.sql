@@ -30,9 +30,18 @@ CREATE TABLE "Orders" (
     "total_product_quantity" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deliver_at" TIMESTAMP(3) NOT NULL,
     "user_UUID" CHAR(36) NOT NULL,
 
     CONSTRAINT "orders_pk" PRIMARY KEY ("number")
+);
+
+-- CreateTable
+CREATE TABLE "Belong" (
+    "order_number" INTEGER NOT NULL,
+    "product_UUID" CHAR(36) NOT NULL,
+
+    CONSTRAINT "Belong_pkey" PRIMARY KEY ("product_UUID","order_number")
 );
 
 -- CreateIndex
@@ -44,5 +53,14 @@ CREATE UNIQUE INDEX "Users_UUID_key" ON "Users"("UUID");
 -- CreateIndex
 CREATE UNIQUE INDEX "Orders_number_key" ON "Orders"("number");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "Belong_product_UUID_order_number_key" ON "Belong"("product_UUID", "order_number");
+
 -- AddForeignKey
 ALTER TABLE "Orders" ADD CONSTRAINT "user_fk" FOREIGN KEY ("user_UUID") REFERENCES "Users"("UUID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Belong" ADD CONSTRAINT "products_uuid_fk" FOREIGN KEY ("product_UUID") REFERENCES "Products"("UUID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Belong" ADD CONSTRAINT "orders_uuid_fk" FOREIGN KEY ("order_number") REFERENCES "Orders"("number") ON DELETE RESTRICT ON UPDATE CASCADE;

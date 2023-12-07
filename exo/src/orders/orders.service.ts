@@ -1,22 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async filterProductsUUID(productUUIDS: { product_UUID: string }[]) {
+  private async generateForwardDate(daysToAdd: number, from?: Date) {
+    const newDate = from ?? new Date();
+    newDate.setDate(newDate.getDate() + daysToAdd);
+    return newDate;
+  }
+
+  private async getProducts(productUUIDS: string[]) {
     return await this.prisma.products.findMany({
       where: {
-        OR: productUUIDS.map((uuid) => ({ UUID: uuid.product_UUID })),
+        OR: productUUIDS.map((product) => ({
+          UUID: product,
+        })),
       },
     });
   }
 
-  public async createOrder(createOrderDto: CreateOrderDto) {
-    const orderedProducts = await this.filterProductsUUID(
+  public async create(createOrderDto: CreateOrderDto) {
+    const orderedProducts = await this.getProducts(
       createOrderDto.products_uuid,
     );
 
@@ -34,30 +41,47 @@ export class OrdersService {
         },
         Belong: {
           createMany: {
-            data: (
-              await this.filterProductsUUID(createOrderDto.products_uuid)
-            ).map((product) => ({ product_UUID: product.UUID })),
+            data: orderedProducts.map((product) => ({
+              product_UUID: product.UUID,
+            })),
           },
         },
         total_product_quantity: orderedProducts.length,
-        deliver_at: new Date(),
+        deliver_at: await this.generateForwardDate(7),
+      },
+      select: {
+        total_cost: true,
+        user: true,
+        total_product_quantity: true,
+        Belong: {
+          select: {
+            Product: true,
+          },
+        },
       },
     });
   }
 
-  findAll() {
-    return `This action returns all orders`;
+  public async getByNumber(orderNumber: number) {
+    return await this.prisma.orders.findUnique({
+      where: {
+        number: orderNumber,
+      },
+      select: {
+        Belong: {
+          select: {
+            Product: true,
+          },
+        },
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
-  }
-
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  public async deleteByNumber(orderNumber: number) {
+    return await this.prisma.orders.delete({
+      where: {
+        number: orderNumber,
+      },
+    });
   }
 }
