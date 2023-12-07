@@ -8,19 +8,25 @@ export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
   private async filterProductsUUID(productUUIDS: { product_UUID: string }[]) {
-    return (
-      await this.prisma.products.findMany({
-        where: {
-          OR: productUUIDS.map((uuid) => ({ UUID: uuid.product_UUID })),
-        },
-      })
-    ).map((product) => ({ product_UUID: product.UUID }));
+    return await this.prisma.products.findMany({
+      where: {
+        OR: productUUIDS.map((uuid) => ({ UUID: uuid.product_UUID })),
+      },
+    });
   }
 
   public async createOrder(createOrderDto: CreateOrderDto) {
+    const orderedProducts = await this.filterProductsUUID(
+      createOrderDto.products_uuid,
+    );
+
+    const totalCost = orderedProducts
+      .map((product) => product.price)
+      .reduce((total, current) => total + current);
+
     return await this.prisma.orders.create({
       data: {
-        total_cost: createOrderDto.total_cost,
+        total_cost: totalCost,
         user: {
           connect: {
             UUID: createOrderDto.user_uuid,
@@ -28,10 +34,12 @@ export class OrdersService {
         },
         Belong: {
           createMany: {
-            data: await this.filterProductsUUID(createOrderDto.products_uuid),
+            data: (
+              await this.filterProductsUUID(createOrderDto.products_uuid)
+            ).map((product) => ({ product_UUID: product.UUID })),
           },
         },
-        total_product_quantity: createOrderDto.products_uuid.length,
+        total_product_quantity: orderedProducts.length,
         deliver_at: new Date(),
       },
     });
