@@ -40,3 +40,11 @@ model Orders {
   user_UUID              String   @db.Char(36)
   user                   Users    @relation(map: "user_fk", fields: [user_UUID], references: [UUID], onDelete: Cascade)
 }
+
+model Belong {
+  product_UUID String @db.Char(36)
+  order_UUID   String @db.Char(36)
+
+  @@id([product_UUID, order_UUID])
+  @@unique([product_UUID, order_UUID])
+}
