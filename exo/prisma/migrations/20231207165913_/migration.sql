@@ -41,7 +41,7 @@ CREATE TABLE "Belong" (
     "order_number" INTEGER NOT NULL,
     "product_UUID" CHAR(36) NOT NULL,
 
-    CONSTRAINT "belong_order_pk" PRIMARY KEY ("order_number")
+    CONSTRAINT "Belong_pkey" PRIMARY KEY ("product_UUID","order_number")
 );
 
 -- CreateIndex

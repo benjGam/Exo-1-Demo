@@ -44,10 +44,11 @@ model Orders {
 }
 
 model Belong {
-  order_number Int      @id(map: "belong_order_pk")
+  order_number Int
   product_UUID String   @db.Char(36)
   Product      Products @relation(map: "products_uuid_fk", fields: [product_UUID], references: [UUID])
   Order        Orders   @relation(map: "orders_uuid_fk", fields: [order_number], references: [number])
 
+  @@id([product_UUID, order_number])
   @@unique([product_UUID, order_number])
 }

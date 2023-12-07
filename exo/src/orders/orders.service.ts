@@ -7,16 +7,18 @@ import { PrismaService } from 'src/prisma.service';
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async filterProductsUUID(productUUIDS: { product_UUID: string }[]) {
+  private async getProducts(productUUIDS: string[]) {
     return await this.prisma.products.findMany({
       where: {
-        OR: productUUIDS.map((uuid) => ({ UUID: uuid.product_UUID })),
+        OR: productUUIDS.map((product) => ({
+          UUID: product,
+        })),
       },
     });
   }
 
-  public async createOrder(createOrderDto: CreateOrderDto) {
-    const orderedProducts = await this.filterProductsUUID(
+  public async create(createOrderDto: CreateOrderDto) {
+    const orderedProducts = await this.getProducts(
       createOrderDto.products_uuid,
     );
 
@@ -34,9 +36,9 @@ export class OrdersService {
         },
         Belong: {
           createMany: {
-            data: (
-              await this.filterProductsUUID(createOrderDto.products_uuid)
-            ).map((product) => ({ product_UUID: product.UUID })),
+            data: orderedProducts.map((product) => ({
+              product_UUID: product.UUID,
+            })),
           },
         },
         total_product_quantity: orderedProducts.length,
