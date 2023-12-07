@@ -36,6 +36,7 @@ model Orders {
   total_product_quantity Int
   created_at             DateTime @default(now())
   updated_at             DateTime @default(now())
+  deliver_at             DateTime
   user_UUID              String   @db.Char(36)
   user                   Users    @relation(map: "user_fk", fields: [user_UUID], references: [UUID], onDelete: Cascade)
 }
