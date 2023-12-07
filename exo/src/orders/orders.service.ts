@@ -67,7 +67,7 @@ export class OrdersService {
       where: {
         number: orderNumber,
       },
-      select: {
+      include: {
         Belong: {
           select: {
             Product: true,
