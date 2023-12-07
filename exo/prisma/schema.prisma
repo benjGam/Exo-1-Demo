@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Products {
+  UUID        String   @id(map: "products_pk") @unique() @default(uuid()) @db.Char(36)
+  name        String   @db.VarChar(20)
+  description String   @db.Text()
+  price       Float
+  quantity    Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  Belong      Belong[]
+}
+
+model Users {
+  UUID       String   @id(map: "users_pk") @unique() @default(uuid()) @db.Char(36)
+  nickname   String   @db.VarChar(20)
+  username   String   @db.VarChar(30)
+  password   String   @db.VarChar(72)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  Orders     Orders[]
+}
+
+model Orders {
+  number                 Int      @id(map: "orders_pk") @unique() @default(autoincrement())
+  total_cost             Float
+  total_product_quantity Int
+  created_at             DateTime @default(now())
+  updated_at             DateTime @default(now())
+  deliver_at             DateTime
+  user_UUID              String   @db.Char(36)
+  user                   Users    @relation(map: "user_fk", fields: [user_UUID], references: [UUID], onDelete: Cascade)
+  Belong                 Belong[]
+}
+
+model Belong {
+  product_UUID String   @db.Char(36)
+  order_number Int
+  Product      Products @relation(map: "products_uuid_fk", fields: [product_UUID], references: [UUID])
+  Order        Orders   @relation(map: "orders_uuid_fk", fields: [order_number], references: [number])
+
+  @@id([product_UUID, order_number])
+  @@unique([product_UUID, order_number])
+}
