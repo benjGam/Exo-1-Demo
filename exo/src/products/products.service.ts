@@ -39,4 +39,12 @@ export class ProductsService {
       },
     });
   }
+
+  public async deleteByUUID(uuid: string) {
+    return await this.prisma.products.delete({
+      where: {
+        UUID: uuid,
+      },
+    });
+  }
 }
