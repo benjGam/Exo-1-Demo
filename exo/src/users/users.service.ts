@@ -6,6 +6,8 @@ import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
+  private saltGenRound = 12;
+
   constructor(private readonly prisma: PrismaService) {}
 
   public async create(createUserDto: CreateUserDto) {
@@ -13,7 +15,7 @@ export class UsersService {
       data: {
         nickname: createUserDto.nickname,
         username: createUserDto.username,
-        password: await bcrypt.hash(createUserDto.password, 12),
+        password: await bcrypt.hash(createUserDto.password, this.saltGenRound),
       },
     });
   }
@@ -22,6 +24,19 @@ export class UsersService {
     return await this.prisma.users.findUnique({
       where: {
         UUID: uuid,
+      },
+    });
+  }
+
+  public async updateByUUID(uuid: string, updateUserDto: UpdateUserDto) {
+    return await this.prisma.users.update({
+      where: {
+        UUID: uuid,
+      },
+      data: {
+        nickname: updateUserDto.nickname,
+        username: updateUserDto.username,
+        password: await bcrypt.hash(updateUserDto.password, this.saltGenRound),
       },
     });
   }
